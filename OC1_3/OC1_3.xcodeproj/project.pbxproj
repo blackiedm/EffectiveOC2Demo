@@ -15,6 +15,7 @@
 		56D2EACD2251FCCF00F1F8B7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D2EACC2251FCCF00F1F8B7 /* main.m */; };
 		56D2EAD72251FCCF00F1F8B7 /* OC1_3Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D2EAD62251FCCF00F1F8B7 /* OC1_3Tests.m */; };
 		56D2EAE22251FCCF00F1F8B7 /* OC1_3UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D2EAE12251FCCF00F1F8B7 /* OC1_3UITests.m */; };
+		56D2EAF122522F7600F1F8B7 /* TestLiteral.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D2EAF022522F7600F1F8B7 /* TestLiteral.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		56D2EADD2251FCCF00F1F8B7 /* OC1_3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OC1_3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		56D2EAE12251FCCF00F1F8B7 /* OC1_3UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OC1_3UITests.m; sourceTree = "<group>"; };
 		56D2EAE32251FCCF00F1F8B7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		56D2EAEF22522F7600F1F8B7 /* TestLiteral.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestLiteral.h; sourceTree = "<group>"; };
+		56D2EAF022522F7600F1F8B7 /* TestLiteral.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestLiteral.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				56D2EAC82251FCCF00F1F8B7 /* LaunchScreen.storyboard */,
 				56D2EACB2251FCCF00F1F8B7 /* Info.plist */,
 				56D2EACC2251FCCF00F1F8B7 /* main.m */,
+				56D2EAEF22522F7600F1F8B7 /* TestLiteral.h */,
+				56D2EAF022522F7600F1F8B7 /* TestLiteral.m */,
 			);
 			path = OC1_3;
 			sourceTree = "<group>";
@@ -263,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				56D2EAC22251FCCE00F1F8B7 /* ViewController.m in Sources */,
+				56D2EAF122522F7600F1F8B7 /* TestLiteral.m in Sources */,
 				56D2EACD2251FCCF00F1F8B7 /* main.m in Sources */,
 				56D2EABF2251FCCE00F1F8B7 /* AppDelegate.m in Sources */,
 			);
