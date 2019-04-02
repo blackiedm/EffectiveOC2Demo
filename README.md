@@ -9,6 +9,7 @@ EffectiveObject-C 2.0 demo练习
  * [在类的头文件中尽量少引用其他头文件](#standard-declaring)
  * [多用字面量语法，少用与之等价的方法](#standard-literal)
  * [多用类型常量，少用 #define 预处理指令](#standard-define)
+ * [用枚举表示状态、选项、状态码](#standard-enum)
 
 技巧篇：讲解一些为了解决某些特定问题而需要用到的技巧
 
@@ -109,5 +110,47 @@ EffectiveObject-C 2.0 demo练习
 	const NSTimeInterval EOCViewControllerAnimationDuration = 0.5;
 	```
 	
+## <a name="standard-enum"></a>用枚举表示状态、选项、状态码（OC1_5）
+
+* 枚举定义方式：
+
+	```
+	//枚举定义1
+	typedef NS_ENUM(NSUInteger, EOCConnectionState) {
+	    EOCConnectionStateDisconnected,
+	    EOCConnectionStateConnecting,
+	    EOCConnectionStateConnected
+	};
 	
+	//使用NS_OPTIONS定义按位或操作的枚举，对1左移
+	typedef NS_OPTIONS(int, EOCPermitted) {
+	    EOCPermittedUp      = 1 << 0,
+	    EOCPermittedDown    = 1 << 1,
+	    EOCPermittedLeft    = 1 << 2,
+	    EOCPermittedRight   = 1 << 3
+	};
+	EOCPermitted permitted = EOCPermittedUp | EOCPermittedDown;
+	
+	//枚举定义2
+	typedef enum:NSUInteger {
+	    GeoUserStateUnkown,
+	    GeoUserStateEnter,
+	    GeoUserStateExit
+	} GeoUserState;
+	```
+* 在处理枚举类型的switch语句中不要实现defualt分支。这样若有枚举没有处理，编译器则会报警。
+
+	```
+	GeoUserState state = GeoUserStateUnkown;
+	switch (state) {
+	    case GeoUserStateUnkown:
+	    case GeoUserStateEnter:
+	    case GeoUserStateExit:
+	    NSLog(@"GeoUserState :%@",@(state));
+	    break;
+	}
+	```
+
+
+
 	
