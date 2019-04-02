@@ -4,15 +4,16 @@ EffectiveObject-C 2.0 demo练习
 
 概念篇：讲解一些概念性知识
 
-技巧篇：讲解一些为了解决某些特定问题而需要用到的技巧
-
 规范篇：讲解一些为了避免一些问题或者后续开发提供便利所需遵循的规范性知识
 
- * [在类的头文件中尽量少引用其他头文件](#one-declaring)
- * [多用字面量语法，少用与之等价的方法](#one-literal)
+ * [在类的头文件中尽量少引用其他头文件](#standard-declaring)
+ * [多用字面量语法，少用与之等价的方法](#standard-literal)
+ * [多用类型常量，少用 #define 预处理指令](#standard-define)
+
+技巧篇：讲解一些为了解决某些特定问题而需要用到的技巧
 
 
-## <a name="one-declaring"></a>在类的头文件中尽量少引用其他头文件（OC1_2）
+## <a name="standard-declaring"></a>在类的头文件中尽量少引用其他头文件（OC1_2）
 
 ### 类声明
 
@@ -37,45 +38,76 @@ EffectiveObject-C 2.0 demo练习
 * 在`class-continuation分类`里声明遵从该委托协议。
 
 
-## <a name="one-literal"></a>多用字面量语法，少用与之等价的方法（OC1_3）
+## <a name="standard-literal"></a>多用字面量语法，少用与之等价的方法（OC1_3）
 * 使用字面量语法来创建字符串、数值、数组、字典，更加简明和具有可读性。
 * 数组和字典可通过取下标操作进行访问
 * 使用字面量语法来创建数组或字典时，若值中有nil，则会抛出异常
+* 例子：
 
-**字符串字面量 NSString**
- 
-``` 
-NSString * str = @"just test";
-```
- 
-**字面数值 NSNumber，整数、浮点数、布尔值封装进oc对象**  
- 
-```
-NSNumber *number = @1;  
-NSNumber *number1 = @1.5f;
-NSNumber *number2 = @YES;
-NSNumber *number3 = @(2 * 2.5f);
-```
-**字面量数组 NSArray**
- 
-```
-NSArray *array = @[@"A",@"B",@"B"];
-NSString *value = array[1];//取下标
-```
-**字面量字典 NSDictionary**
+	**字符串字面量 NSString**
+	 
+	``` 
+	NSString * str = @"just test";
+	```
+	 
+	**字面数值 NSNumber，整数、浮点数、布尔值封装进oc对象**  
+	 
+	```
+	NSNumber *number = @1;  
+	NSNumber *number1 = @1.5f;
+	NSNumber *number2 = @YES;
+	NSNumber *number3 = @(2 * 2.5f);
+	```
+	**字面量数组 NSArray**
+	 
+	```
+	NSArray *array = @[@"A",@"B",@"B"];
+	NSString *value = array[1];//取下标
+	```
+	**字面量字典 NSDictionary**
+	
+	```
+	NSDictionary *dic = @{@"key0":@"value0",
+	                      @"key1":@YES,
+	                      @"key2":@1
+	                      };
+	NSString *value1 = dic[@"key0"];//取下标
+	```
+	**可变字典和数组可通过取下标更改值**
+	
+	```
+	NSMutableArray *mutableArray = [array mutableCopy];
+	mutableArray[0] = @"D";
+	NSMutableDictionary *mutableDic = [dic mutableCopy];
+	mutableDic[@"key0"] = @"value";
+	```
 
-```
-NSDictionary *dic = @{@"key0":@"value0",
-                      @"key1":@YES,
-                      @"key2":@1
-                      };
-NSString *value1 = dic[@"key0"];//取下标
-```
-**可变字典和数组可通过取下标更改值**
+## <a name="standard-define"></a>多用类型常量，少用 #define 预处理指令（OC1_4）
 
-```
-NSMutableArray *mutableArray = [array mutableCopy];
-mutableArray[0] = @"D";
-NSMutableDictionary *mutableDic = [dic mutableCopy];
-mutableDic[@"key0"] = @"value";
-```
+* 优先使用类型常量定义常量，少用`#define`预处理命令。预处理命令定义的常量不含类型信息，且容易被替换掉。
+* 定义不对外声明的常量。一般都在实现文件中使用`static const`来定义，一般在前面加上小写字母`k`。
+
+	```
+	//定义常量正确方式：使用static const
+	//试图修改const修饰符所声明的变量，编译器会报错
+	//static修饰符意味着该变量仅在定义此变量的编译单元（.m文件）中可见
+	static const NSTimeInterval kAnimationDuration = 0.3;
+	static NSString* const kAnimationNotificatino = @"kAnimationNotificatinon";
+	```
+* 定义全局变量符号。一般在头文件中使用`extern`来声明，并在相关实现文件中定义其值，通常用与之相关的类名做前缀。
+
+	```
+	//  ViewController.h
+	...
+	//extern关键字告诉编译器，向全局符号表中注册一个符号（编译器无需查看其定义，直接代码使用该常量，当链接成二进制文件之后，编译器会在数据段为字符串分配空间）
+	extern const NSTimeInterval EOCViewControllerAnimationDuration;
+	extern NSString* const EOCViewControllerDidAnimationNotification;
+	
+	//  ViewController.m
+	...
+	NSString *const EOCViewControllerDidAnimationNotification =	@"EOCViewControllerDidAnimationNotification";
+	const NSTimeInterval EOCViewControllerAnimationDuration = 0.5;
+	```
+	
+	
+	
