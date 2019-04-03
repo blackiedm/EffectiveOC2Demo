@@ -12,11 +12,12 @@ EffectiveObject-C 2.0 demo练习
  * [多用字面量语法，少用与之等价的方法](#standard-literal)
  * [多用类型常量，少用 #define 预处理指令](#standard-define)
  * [用枚举表示状态、选项、状态码](#standard-enum)
+ * [在对象内部尽量直接访问实例变量](#standard-direct-access)
 
 技巧篇：讲解一些为了解决某些特定问题而需要用到的技巧
 
 
-## <a name="standard-declaring"></a>在类的头文件中尽量少引用其他头文件（OC1_2）
+## <a name="standard-declaring"></a>第2条：在类的头文件中尽量少引用其他头文件（OC1_2）
 
 ### 类声明
 
@@ -41,7 +42,7 @@ EffectiveObject-C 2.0 demo练习
 * 在`class-continuation分类`里声明遵从该委托协议。
 
 
-## <a name="standard-literal"></a>多用字面量语法，少用与之等价的方法（OC1_3）
+## <a name="standard-literal"></a>第3条：多用字面量语法，少用与之等价的方法（OC1_3）
 * 使用字面量语法来创建字符串、数值、数组、字典，更加简明和具有可读性。
 * 数组和字典可通过取下标操作进行访问
 * 使用字面量语法来创建数组或字典时，若值中有nil，则会抛出异常
@@ -85,7 +86,7 @@ EffectiveObject-C 2.0 demo练习
 	mutableDic[@"key0"] = @"value";
 	```
 
-## <a name="standard-define"></a>多用类型常量，少用 #define 预处理指令（OC1_4）
+## <a name="standard-define"></a>第4条：多用类型常量，少用 #define 预处理指令（OC1_4）
 
 * 优先使用类型常量定义常量，少用`#define`预处理命令。预处理命令定义的常量不含类型信息，且容易被替换掉。
 * 定义不对外声明的常量。一般都在实现文件中使用`static const`来定义，一般在前面加上小写字母`k`。
@@ -112,7 +113,7 @@ EffectiveObject-C 2.0 demo练习
 	const NSTimeInterval EOCViewControllerAnimationDuration = 0.5;
 	```
 	
-## <a name="standard-enum"></a>用枚举表示状态、选项、状态码（OC1_5）
+## <a name="standard-enum"></a>第5条：用枚举表示状态、选项、状态码（OC1_5）
 
 * 枚举定义方式：
 
@@ -153,7 +154,7 @@ EffectiveObject-C 2.0 demo练习
 	}
 	```
 
-## <a name="concept-property"></a>理解“属性”这一概念（OC2_6）
+## <a name="concept-property"></a>第6条：理解“属性”这一概念（OC2_6）
 
 **属性语法**
 
@@ -255,4 +256,46 @@ EffectiveObject-C 2.0 demo练习
 NSString是不可变类型，若其数据源为不可变类型，那么使用copy或strong等同效果;  
 若其数据源为可变类型，当修改数据源时，使用copy修饰的字符串则不会发生改变，但是使用strong修饰的会因为数据源变化而变化。**关键就在于copy会生成新的内存地址，strong则指向同一个内存地址。**
 
-	
+
+## <a name="standard-direct-access"></a>第7条：在对象内部尽量直接访问实例变量（OC2_7）
+
+**一般情况**
+
+建议在读取实例变量时候采用直接访问形式，在设置实例变量时候通过属性存取方法来设置。
+
+* 直接访问实例变量速度快；绕过相关属性所定义的内存管理语义；不会触发KVO通知
+* 通过属性访问有助于排查与之相关的错误，可增加断点来监控该属性的调用者及访问时机
+
+**特殊情况**
+
+* 初始化总是应该使用直接访问实例变量，避免子类覆写其设置方法
+
+	```
+	-(instancetype) initWithFullname:(NSString *)name{
+	    NSArray *components = [name componentsSeparatedByString:@" "];
+	    if(self = [super init]){
+	        _firstName = [[components objectAtIndex:0] copy];
+	        _lastName = [[components objectAtIndex:1] copy];
+	    }
+	    return self;
+	}
+	```
+
+* 懒性初始化，必须通过‘获取方法’来访问属性。如果某属性不常用且创建成本较高，则应该使用懒加载
+
+	```
+	//EOCPerson.m
+	-(EOCBrain *)brain{
+	    if(!_brain){
+	        _brain = [[EOCBrain alloc] init];
+	    }
+	    return _brain;
+	}
+	-(void) didBrainTest{
+	//    //直接访问实例变量，可能会出现没有初始化
+	//    [_brain testSomething];
+	    //懒性初始化的属性，应该调用获取方法来访问
+	    [[self brain] testSomething];
+	}
+```
+
