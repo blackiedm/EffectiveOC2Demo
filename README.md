@@ -4,6 +4,8 @@ EffectiveObject-C 2.0 demo练习
 
 概念篇：讲解一些概念性知识
 
+ * [理解“属性”这一概念](#concept-property)
+
 规范篇：讲解一些为了避免一些问题或者后续开发提供便利所需遵循的规范性知识
 
  * [在类的头文件中尽量少引用其他头文件](#standard-declaring)
@@ -151,6 +153,106 @@ EffectiveObject-C 2.0 demo练习
 	}
 	```
 
+## <a name="concept-property"></a>理解“属性”这一概念（OC2_6）
 
+**属性语法**
+
+* `@property`语法会在编译期自动合成存取方法，同时生成适当类型的实例变量（属性名前面加下划线当做实例变量名）
+
+	```
+	//EOCPersion.h
+	@property NSString *firstName;
+	@property NSString *lastName;
+	
+	//xxx.m
+	EOCPersion *persion = [[EOCPersion alloc] init];
+	//要访问属性，可使用点语法
+	persion.firstName = @"aaaa";
+	NSString *firstName = persion.firstName
+	//也可直接使用存取方法
+	[persion setLastName:@"bbbb"];
+	NSString *lastName = [persion lastName];
+	```
+* `@synthesize`语法可指定实例变量的名字，在类的实现代码里使用。
+
+	```
+	//EOCPersion.m
+	@implementation EOCPersion
+	@synthesize firstName = _myFirstName;
+	@synthesize lastName = _myLastName;
+	//即使指定不同的实例变量名字，但不影响属性生成的存取方法，其值相等
+	-(NSString *)fullName{
+	    return [_myFirstName stringByAppendingString:_myLastName];
+	//    return [self.firstName stringByAppendingString:self.lastName];
+	}
+	...
+	@end
+	```
+* `@dynamic`语法告诉编译器不要自动创建实例变量和存取方法，在类的实现代码里使用。
+
+	```
+	//EOCPersion.m
+	@interface EOCPersion(){
+	//手动创建实例变量
+	NSInteger _age;
+	}
+	@end
+	
+	@implementation EOCPersion
+	@dynamic age;
+	//手动创建存取方法
+	- (void)setAge:(NSInteger)age{
+	    _age = age;
+	}
+	- (NSInteger)age{
+		return _age;
+	}
+	...
+	@end
+```
+
+**属性特性**  
+
+原子性  
+
+* `nonatomic`: 非原子操作，不使用同步锁，多线程并发访问会提高访问效率
+* `atomic`: 原子操作，加同步锁，提供多线程安全，只在其`setter`或`getter`方法时加锁安全机制，其他的线程安全不负责
+
+	属性默认的是原子操作，但是一般开发使用非原子操作。因为关于线程安全，只是依赖原子操作根本实现不了。
+ 
+读写权限
+	
+* `readwrite`: 创建存取方法
+* `readonly`: 只创建获取方法
+
+内存管理语义
+
+* `assign`: 修饰基础数据类型以及C数据类型。
+* `strong`: 修饰OC对象，尤其为可变类型的属性必须使用strong修饰，它不会生成新的内存地址，会使引用计数加1。
+* `weak`: 修饰OC对象，在对象被销毁时会被置为nil。(delegate一般使用weak)
+* `unsafe_unretained`: 修饰OC对象，在对象被销毁时不会置nil
+* `copy`: 一般用来修饰不可变类型对象以及block，它会生成新的内存地址，但不会对原对象的引用计数发生变化。
+
+	```
+	//assign
+	@property (nonatomic,assign) NSInteger count;
+	@property (nonatomic,assign) BOOL isOK;
+	
+	//strong
+	@property (nonatomic, strong) id objectA;
+	@property (nonatomic, strong) UIViewController *viewController;
+	
+	//weak
+	@property (nonatomic, weak) id delegate;
+	
+	//copy
+	@property (nonatomic, readonly, copy) NSString *parentName;
+	@property (nonatomic, readwrite, copy) void (^callback)(NSString*);
+	```
+
+**关于NSString为什么使用copy而不是strong关键字**  
+
+NSString是不可变类型，若其数据源为不可变类型，那么使用copy或strong等同效果;  
+若其数据源为可变类型，当修改数据源时，使用copy修饰的字符串则不会发生改变，但是使用strong修饰的会因为数据源变化而变化。**关键就在于copy会生成新的内存地址，strong则指向同一个内存地址。**
 
 	
