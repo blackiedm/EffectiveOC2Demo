@@ -5,6 +5,7 @@ EffectiveObject-C 2.0 demo练习
 概念篇：讲解一些概念性知识
 
  * [理解“属性”这一概念](#concept-property)
+ * [理解“等同性”这一概念](#concept-equal)
 
 规范篇：讲解一些为了避免一些问题或者后续开发提供便利所需遵循的规范性知识
 
@@ -299,5 +300,42 @@ NSString是不可变类型，若其数据源为不可变类型，那么使用cop
 	}
 	```
 	
-	
+## <a name="concept-equal"></a>第8条：理解“等同性”这一概念（OC2_8）
+
+* 自定义对象判断等同性关键方法：isEqual 和 hash
+* 根据等同性约定：若两对象相等，则其哈希码也相等；但是两个哈希码相同的对象却未必相等。
+
+	```
+	- (BOOL)isEqual:(id)object{
+		//判断类型是否一样(看情况而定)
+		if([self class] == [object class]){
+		    return [self isEualToPerson:(EOCPerson *)object];
+		}else{
+		    return [super isEqual:object];
+		}
+	}
+	//提高效率，无需判断类型
+	- (BOOL) isEualToPerson:(EOCPerson *)other{
+		//判断相同指针地址，则为同一个对象
+		if(self == other) return YES;
+		//判断属性值是否相等
+		if(![_firstName isEqualToString:other.firstName]){
+		    return NO;
+		}
+		if(![_lastName isEqualToString:other.lastName]){
+		    return NO;
+		}
+		if(_age != other.age){
+		    return NO;
+		}
+		return YES;
+	}
+	- (NSUInteger)hash{
+		NSUInteger fhash = [_firstName hash];
+		NSUInteger lhash = [_lastName hash];
+		NSUInteger ahash = _age;
+		// ^ :位异或 第一个操作数的的第n位于第二个操作数的第n位相反，那么结果的第n为也为1，否则为0
+		return fhash ^ lhash ^ ahash;
+	}
+	```
 
