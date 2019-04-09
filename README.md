@@ -17,6 +17,7 @@ EffectiveObject-C 2.0 demo练习
 
 技巧篇：讲解一些为了解决某些特定问题而需要用到的技巧
 
+ * [以“类族模式”隐藏实现细节](#method-abstract)
 
 ## <a name="standard-declaring"></a>第2条：在类的头文件中尽量少引用其他头文件（OC1_2）
 
@@ -338,4 +339,46 @@ NSString是不可变类型，若其数据源为不可变类型，那么使用cop
 		return fhash ^ lhash ^ ahash;
 	}
 	```
+	
+## <a name="method-abstract"></a>第9条：以“类族模式”隐藏实现细节（OC2_9）
 
+* 工厂模式创建类族，隐藏抽象基类背后实现细节，子类继承实现。
+
+	```
+	//  EOCEmployee.h
+	
+	typedef enum:NSUInteger {
+	    EOCEmployeeTypeDeveloper,
+	    EOCEmployeeTypeDesigner,
+	    EOCEmployeeTypeFinance
+	} EOCEmployeeType;
+	
+	@interface EOCEmployee : NSObject
+	//工厂模式创建类族，隐藏抽象基类背后实现细节。
+	+ (EOCEmployee *) employeeWithType:(EOCEmployeeType) type;
+	//子类继承实现
+	-(void) doSubWork;
+	@end
+	```
+	
+* 类族中的实体子类并不与其基类属于同一个类。`(isKindOfClass/isMemberOfClass)`
+
+	```
+	EOCEmployee *employee = [EOCEmployee employeeWithType:EOCEmployeeTypeDeveloper];
+	if([employee isKindOfClass:[EOCEmployee class]]){
+	    //相同基类
+	    NSLog(@"isKindOfClass EOCEmployee");
+	}
+	if([employee isMemberOfClass:[EOCEmployee class]]){
+	    //不同实例类型
+	    NSLog(@"isMemberOfClass EOCEmployee");
+	}
+	if([employee isKindOfClass:[EOCEmployeeDeveloper class]]){
+	    //相同基类
+	    NSLog(@"isKindOfClass EOCEmployeeDeveloper");
+	}
+	if([employee isMemberOfClass:[EOCEmployeeDeveloper class]]){
+	     //相同实例类型
+	    NSLog(@"isMemberOfClass EOCEmployeeDeveloper");
+	}
+	```
